@@ -1,62 +1,42 @@
 const canvas = document.getElementById('drawingCanvas');
+const pixelSize = 10;
 const ctx = canvas.getContext('2d');
 const colorPicker = document.getElementById('colorPicker');
 
 let pixels = [];
 let idCounter = 1;
-const pixelSize = 10;
+
 
 canvas.addEventListener('mousedown', drawPixel);
 canvas.addEventListener('mousemove', showPixelId);
 canvas.addEventListener('mouseout', clearHoverInfo);
 
-async function fetchPixels() {
-    const response = await fetch('http://127.0.0.1:5500/api/pixels');
-    const data = await response.json();
-    return data;
-}
-
-async function sendPixel(x, y, color) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "http://127.0.0.1:5000/pixels/" + encodeURIComponent(x) + "/" + encodeURIComponent(y)+ "/" + encodeURIComponent(color));
-    xhttp.setRequestHeader("Content-Type", "application/json");
-    xhttp.onload = function () {
-      if (xhttp.status === 200) {
-        document.getElementById("demo").innerHTML = this.responseText;
-      } else if (xhttp.status === 404) {
-        document.getElementById("demo").innerHTML = "Student not found.";
-      } else {
-        document.getElementById("demo").innerHTML = "Error: " + xhttp.status;
-      }
-    };
-    xhttp.send();
-  }
-
-
-async function drawPixel(event) {
-    const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((event.clientX - rect.left) / pixelSize);
-    const y = Math.floor((event.clientY - rect.top) / pixelSize);
-
-    ctx.fillStyle = colorPicker.value;
-    ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
-
-    const pixelInfo = {
-        id: idCounter,
-        x: x,
-        y: y,
-        color: ctx.fillStyle
-    };
-
-    const result = await sendPixel(x, y, ctx.fillStyle);
-    console.log("Result from sendPixel:", result);
-    pixelInfo.id = result.id;
-    pixels.push(pixelInfo);
-    idCounter++;
-}
-
+//Gets all pixels currently stored in database
 async function loadPixels() {
-    const pixelData = await fetchPixels();
+    return new Promise((resolve, reject) => {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "http://127.0.0.1:5000/pixels");
+        xhttp.onload = function () {
+            if (xhttp.status === 200) {
+                const rawData = JSON.parse(this.responseText);
+                const processedData = rawData.map(pixel => ({
+                    id: pixel.id,
+                    x: pixel.x,
+                    y: pixel.y,
+                    color: pixel.color
+                }));
+                resolve(processedData);
+            } else {
+                reject(new Error("Failed to load pixel data"));
+            }
+        };
+        xhttp.send();
+    });
+}
+//Display the pixels loaded from db into canvas
+async function displayDBPixels() {
+    const pixelData = await loadPixels();
+    console.log(pixelData)
     for (const pixel of pixelData) {
         ctx.fillStyle = pixel.color;
         ctx.fillRect(pixel.x * pixelSize, pixel.y * pixelSize, pixelSize, pixelSize);
@@ -72,6 +52,83 @@ async function loadPixels() {
     }
     idCounter = pixels.length + 1;
 }
+//Send newly drawn pixels to db
+async function sendPixels(pixelInfo) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "http://127.0.0.1:5000/pixels/" + encodeURIComponent(pixelInfo.id)
+        + "/" + encodeURIComponent(pixelInfo.x)
+        + "/" + encodeURIComponent(pixelInfo.y)
+        + "/" + encodeURIComponent(pixelInfo.color));
+
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.onload = function () {
+        if (xhttp.status === 200) {
+            console.log(this.responseText)
+        }
+    };
+    xhttp.send();
+}
+//Update pixel if its already drawn on
+async function updatePixel(pixelInfo) {
+    return new Promise((resolve, reject) => {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("PUT", "http://127.0.0.1:5000/pixels/" + encodeURIComponent(pixelInfo.id)
+                                                           + "/" + encodeURIComponent(pixelInfo.x)
+                                                           + "/" + encodeURIComponent(pixelInfo.y)
+                                                           + "/" + encodeURIComponent(pixelInfo.color));
+        xhttp.onload = function () {
+            if (xhttp.status === 200) {
+                resolve(this.responseText);
+            } else {
+                reject(new Error("Failed to update pixel"));
+            }
+        };
+        xhttp.send();
+    });
+}
+
+function drawPixel(event) {
+    event.preventDefault(); // Add this line to prevent any default event behavior
+    const rect = canvas.getBoundingClientRect();
+
+    console.log((event.clientX - rect.left) / pixelSize, (event.clientY - rect.top) / pixelSize)
+
+    const x = Math.floor((event.clientX - rect.left) / pixelSize);
+    const y = Math.floor((event.clientY - rect.top) / pixelSize);
+
+    const existingPixel = pixels.find(pixel => pixel.x === x && pixel.y === y);
+
+    if (existingPixel) {
+        // Update the existing pixel color
+        existingPixel.color = colorPicker.value;
+        ctx.fillStyle = existingPixel.color;
+        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+        const pixelInfo = {
+            id: existingPixel.id,
+            x: x,
+            y: y,
+            color: existingPixel.color
+        };
+        updatePixel(pixelInfo);
+    } else {
+        // Draw a new pixel
+        ctx.fillStyle = colorPicker.value;
+        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+
+        const pixelInfo = {
+            id: idCounter,
+            x: x,
+            y: y,
+            color: ctx.fillStyle
+        };
+
+        console.log(pixelInfo);
+        sendPixels(pixelInfo);
+
+        pixels.push(pixelInfo);
+        idCounter++;
+    }
+}
 
 function showPixelId(event) {
     const rect = canvas.getBoundingClientRect();
@@ -82,6 +139,8 @@ function showPixelId(event) {
 
     if (hoveredPixel) {
         displayHoverInfo(event.clientX, event.clientY, hoveredPixel.id);
+    } else {
+        clearHoverInfo();
     }
 }
 
@@ -113,5 +172,3 @@ function clearHoverInfo() {
         hoverInfo.remove();
     }
 }
-
-loadPixels();

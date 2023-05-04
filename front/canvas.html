@@ -5,24 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basic Drawing Canvas</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-
-        canvas {
-            border: 5px solid black;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-    <div>
+<body onload="displayDBPixels()">
+    <div id="navBar">
+        <h1 id="webName">/ucPlace</h1>
+        <h1 id="logoutBtn">logout</h1>
+    </div>
+    <div id="container">
         <canvas id="drawingCanvas" width="800" height="800"></canvas>
         <br>
         <label for="colorPicker">Choose a color:</label>
