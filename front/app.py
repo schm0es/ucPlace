@@ -61,6 +61,7 @@ def update_pix(id, x, y, color):
     else:
         return jsonify({"error": f"No pixel found"})
 
+@app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -72,11 +73,16 @@ def login():
             user = User(username)
             login_user(user)
             session['logged_in'] = True
-            return redirect(url_for('get_pix'))
+            return redirect(url_for('load_app'))
         else:
             return render_template('login.html', message='Invalid username or password')
 
     return render_template('login.html')
+
+@login_required
+@app.route("/app")
+def load_app():
+    return render_template("canvas.html")
 
 @app.route('/logout')
 @login_required
