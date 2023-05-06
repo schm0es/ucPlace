@@ -69,7 +69,7 @@ def login():
         password = request.form['password']
 
         # Replace this with your own logic to check if the username and password are correct
-        if username == 'myusername' and password == 'mypassword':
+        if (username == 'bob' and password == 'lol') or (username == 'johnsmith' and password == 'password123'):
             user = User(username)
             login_user(user)
             session['logged_in'] = True
