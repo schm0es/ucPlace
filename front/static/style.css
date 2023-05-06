@@ -30,10 +30,32 @@ canvas {
     margin-right: 50px;
 }
 
-#logoutBtn {
-    margin-left: 50px;
-}
-
 #container > label {
     font-family: Arial, Helvetica, sans-serif;
 }
+
+input[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #3c87e8;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: -10px; 
+}
+
+input[type="color"] {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    height: 3em;
+    padding: 0;
+    width: 7em;
+  }
