@@ -30,19 +30,30 @@ canvas {
 }
 
 #webName {
+    
+    text-align:center;
+    color:rgb(78, 78, 78);
+    font-weight:bolder;
+    font-size:35px;
     margin-right: 50px;
 }
 
 #logoutBtn {
-   
-    margin-left:800px;
-    width:30%;
-   
+    
+   align-self:bottom;
+    width:50%;
     font-size:18px;
-    padding:10px 20px 10px 5px;
+    padding: 12px 10px;
     border:none;
     outline:none;
     background: none;
+    background-color: rgb(177, 130, 60);
+    border-radius:30px;
+    color:white;
+
+   
+  
+
 }
 
 

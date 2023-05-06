@@ -9,17 +9,19 @@
 
   <body onload="displayDBPixels()">
     <div id="navBar">
-      <h1 id="webName">/ucPlace</h1>
+      <h1 id="webName">/ucmPlace</h1>
     </div>
+
     <div id="container">
       <canvas id="drawingCanvas" width="800" height="800"></canvas>
       <br />
       <label for="colorPicker">Choose a color:</label>
       <input type="color" id="colorPicker" value="#000000" />
-    </div>
-    <form  action="/logout">
+      <form  action="/logout">
       <input id = "logoutBtn" type="submit" placeholder="logout" value="logout" />
     </form>
+    </div>
+ 
     <script src="./static/app.js"></script>
   </body>
 </html>
