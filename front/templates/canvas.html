@@ -1,29 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Basic Drawing Canvas</title>
+    <link rel="stylesheet" href="./static/style.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Basic Drawing Canvas</title>
-  <link rel="stylesheet" href="./static/style.css" />
-</head>
-
-<body onload="displayDBPixels()">
-  <div id="navBar">
-    <h1 id="webName">/ucPlace</h1>
-  </div>
-  <div id="container">
-    <canvas id="drawingCanvas" width="800" height="800"></canvas>
-    <br />
-    <label for="colorPicker">Choose a color:</label>
-    <input type="color" id="colorPicker" value="#000000" />
-  </div>
-  
-  <form action="/logout">
-    <input type="submit" placeholder="logout" value="logout" />
-  </form>
-
-  <script src="./static/app.js"></script>
-</body>
-
+  <body onload="displayDBPixels()">
+    <div id="navBar">
+      <h1 id="webName">/ucPlace</h1>
+    </div>
+    <div id="container">
+      <canvas id="drawingCanvas" width="800" height="800"></canvas>
+      <br />
+      <label for="colorPicker">Choose a color:</label>
+      <input type="color" id="colorPicker" value="#000000" />
+    </div>
+    <form  action="/logout">
+      <input id = "logoutBtn" type="submit" placeholder="logout" value="logout" />
+    </form>
+    <script src="./static/app.js"></script>
+  </body>
 </html>

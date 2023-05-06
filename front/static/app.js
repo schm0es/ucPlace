@@ -4,7 +4,8 @@ const ctx = canvas.getContext('2d');
 const colorPicker = document.getElementById('colorPicker');
 
 let pixels = [];
-let userId;
+let idCounter = 1;
+
 
 canvas.addEventListener('mousedown', drawPixel);
 canvas.addEventListener('mousemove', showPixelId);
@@ -24,7 +25,6 @@ async function loadPixels() {
                     y: pixel.y,
                     color: pixel.color
                 }));
-                console.log(processedData)
                 resolve(processedData);
             } else {
                 reject(new Error("Failed to load pixel data"));
@@ -36,6 +36,7 @@ async function loadPixels() {
 //Display the pixels loaded from db into canvas
 async function displayDBPixels() {
     const pixelData = await loadPixels();
+    console.log(pixelData)
     for (const pixel of pixelData) {
         ctx.fillStyle = pixel.color;
         ctx.fillRect(pixel.x * pixelSize, pixel.y * pixelSize, pixelSize, pixelSize);
@@ -49,7 +50,7 @@ async function displayDBPixels() {
 
         pixels.push(pixelInfo);
     }
-    setTimeout(displayDBPixels, 5000);
+    idCounter = pixels.length + 1;
 }
 //Send newly drawn pixels to db
 async function sendPixels(pixelInfo) {
@@ -62,6 +63,7 @@ async function sendPixels(pixelInfo) {
     xhttp.setRequestHeader("Content-Type", "application/json");
     xhttp.onload = function () {
         if (xhttp.status === 200) {
+            console.log(this.responseText)
         }
     };
     xhttp.send();
@@ -80,21 +82,6 @@ async function updatePixel(pixelInfo) {
             } else {
                 reject(new Error("Failed to update pixel"));
             }
-        };
-        xhttp.send();
-    });
-}
-
-function fetchUserId() {
-    return new Promise((resolve, reject) => {
-        var xhttp = new XMLHttpRequest();
-        xhttp.open("GET", "http://127.0.0.1:5000/get_user_id");
-        xhttp.onload = function () {
-            if (xhttp.status === 200) {
-                userId = this.responseText
-                console.log(userId)
-                resolve(userId);
-            } 
         };
         xhttp.send();
     });
@@ -129,15 +116,17 @@ function drawPixel(event) {
         ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
 
         const pixelInfo = {
-            id: userId,
+            id: idCounter,
             x: x,
             y: y,
             color: ctx.fillStyle
         };
 
+        console.log(pixelInfo);
         sendPixels(pixelInfo);
 
         pixels.push(pixelInfo);
+        idCounter++;
     }
 }
 
@@ -147,7 +136,6 @@ function showPixelId(event) {
     const y = Math.floor((event.clientY - rect.top) / pixelSize);
 
     const hoveredPixel = pixels.find(pixel => pixel.x === x && pixel.y === y);
-    //console.log(hoveredPixel)
 
     if (hoveredPixel) {
         displayHoverInfo(event.clientX, event.clientY, hoveredPixel.id);
@@ -184,5 +172,3 @@ function clearHoverInfo() {
         hoverInfo.remove();
     }
 }
-
-fetchUserId();
